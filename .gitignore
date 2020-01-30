@@ -20,6 +20,7 @@
 *.tar
 *.zip
 *.json
+*.ico
 
 # Logs and databases #
 ######################

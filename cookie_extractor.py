@@ -35,7 +35,7 @@ def get_paths():
 def run_chrome_cmd(chrome_dir, user_data_dir):
     chrome_cmd = '{0} --user-data-dir="{1}" https://www.google.com --headless --remote-debugging-port=9222'.format(chrome_dir, user_data_dir)
     process = subprocess.Popen(chrome_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(10)
+    time.sleep(6)
     return process
 
 
@@ -59,12 +59,15 @@ def kill_chrome_process(chrome_process):
 
 if __name__ == "__main__":
     try:
-        output = 'cookies_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')+'.json'
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        time_now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        output = dir_path + '/cookies_' + time_now + '.json'
+
         chrome_dir, user_data_dir = get_paths()
         chrome_process = run_chrome_cmd(chrome_dir, user_data_dir)
 
         cookies = get_cookies()
-        time.sleep(2)
+        time.sleep(1)
         kill_chrome_process(chrome_process)
 
         with open(output, 'w') as f:
@@ -72,3 +75,8 @@ if __name__ == "__main__":
 
     except Exception as err:
         raise err
+    else:
+        print('Done!')
+    finally:
+        time.sleep(2)
+        sys.exit()
