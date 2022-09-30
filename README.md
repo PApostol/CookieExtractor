@@ -1,4 +1,4 @@
-## Cookie Extractor
+# Cookie Extractor
 
 Extracts all Chrome cookies found on host in a JSON file.
 
@@ -6,16 +6,17 @@ Cookies can then be injected using the [EditThisCookie](https://chrome.google.co
 
 Works on Windows, Linux and MacOS. 
 
-Requirements:
+#### Requirements:
 - [Python 3.7+](https://www.python.org/downloads/)
 - [requests](https://pypi.org/project/requests/)
 - [websocket-client](https://pypi.org/project/websocket_client/)
 
-Usage:
+#### Usage:
 
 `python cookie_extractor.py`
 
-To compile to a single binary (e.g. executable), install [pyinstaller](https://pypi.org/project/PyInstaller/) via `pip install pyinstaller` and run:
+#### Compile Binaries
+To compile to a single binary (e.g. executable), install [pyinstaller](https://pypi.org/project/PyInstaller/) and run:
 
 `pyinstaller --onefile cookie_extractor.py`
 
