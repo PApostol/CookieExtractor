@@ -1,16 +1,34 @@
-import os, sys, subprocess, json, signal, time, requests, websocket, datetime
+"""
+Extracts all Chrome cookies found on host in a JSON file
+"""
+import datetime as dt
+import getpass
+import json
+import os
+import signal
+import subprocess
+import sys
+import time
+from typing import Any, Dict, Tuple
 
-def get_paths():
+import requests
+import websocket
+
+
+def get_paths() -> Tuple[str, str]:
+    """Gets Chrome installation and user data directories"""
     chrome_dir = None
 
     if sys.platform.startswith('win'):
-        locations = (r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
-                     r'C:\Program Files\Google\Chrome\Application\chrome.exe',
-                     r'C:\Users\{0}\AppData\Local\Google\Chrome\Application\chrome.exe'.format(os.environ['username'].lower()))
+        locations = (
+            r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
+            r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+            rf'C:\Users\{getpass.getuser()}\AppData\Local\Google\Chrome\Application\chrome.exe',
+        )
 
         for location in locations:
             if os.path.isfile(location):
-                chrome_dir = '"'+location+'"'
+                chrome_dir = f'"{location}"'
                 break
 
         user_data_dir = r'%LOCALAPPDATA%\Google\Chrome\User Data'
@@ -24,7 +42,7 @@ def get_paths():
         user_data_dir = '$HOME/.config/google-chrome/'
 
     else:
-        raise RuntimeError('Cannot work with OS ' + sys.platform)
+        raise RuntimeError(f'Cannot work with OS {sys.platform}')
 
     if chrome_dir is None:
         raise RuntimeError('No installation of Chrome detected.')
@@ -32,51 +50,55 @@ def get_paths():
     return chrome_dir, user_data_dir
 
 
-def run_chrome_cmd(chrome_dir, user_data_dir):
-    chrome_cmd = '{0} --user-data-dir="{1}" https://www.google.com --headless --remote-debugging-port=9222'.format(chrome_dir, user_data_dir)
+def run_chrome_cmd(chrome_dir: str, user_data_dir: str) -> subprocess.Popen:
+    """Spawns a headless Chrome instance"""
+    chrome_cmd = (
+        f'{chrome_dir} --user-data-dir="{user_data_dir}" https://www.google.com --headless --remote-debugging-port=9222'
+    )
     process = subprocess.Popen(chrome_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(6)
     return process
 
 
-def get_cookies():
+def get_cookies() -> Dict[str, Any]:
+    """Extracts cookies from Chrome instance"""
     websocket_url = requests.get('http://localhost:9222/json').json()[0].get('webSocketDebuggerUrl')
     ws = websocket.create_connection(websocket_url)
 
-    ws.send(json.dumps({"id": 1, "method": "Network.getAllCookies"}))
+    ws.send(json.dumps({'id': 1, 'method': 'Network.getAllCookies'}))
     result = ws.recv()
 
     ws.close()
     return json.loads(result)['result']['cookies']
 
 
-def kill_chrome_process(chrome_process):
+def kill_chrome_process(chrome_proc: subprocess.Popen) -> None:
+    """Kills spawned Chrome instance"""
     if sys.platform.startswith('win'):
-        os.kill(chrome_process.pid + 1, signal.SIGTERM)
+        os.kill(chrome_proc.pid + 1, signal.SIGTERM)
     else:
-        os.kill(chrome_process.pid + 1, signal.SIGKILL)
+        os.kill(chrome_proc.pid + 1, signal.SIGKILL)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        time_now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        output = dir_path + '/cookies_' + time_now + '.json'
+        time_now = dt.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+        output = f'{dir_path}/cookies_{time_now}.json'
 
-        chrome_dir, user_data_dir = get_paths()
-        chrome_process = run_chrome_cmd(chrome_dir, user_data_dir)
+        chrome_directory, user_data_directory = get_paths()
+        chrome_process = run_chrome_cmd(chrome_directory, user_data_directory)
 
         cookies = get_cookies()
         time.sleep(1)
         kill_chrome_process(chrome_process)
 
-        with open(output, 'w') as f:
+        with open(output, 'w', encoding='utf-8') as f:
             f.write(json.dumps(cookies, indent=4, separators=(',', ': '), sort_keys=True))
 
     except Exception as err:
-        raise err
+        raise
     else:
         print('Done!')
     finally:
         time.sleep(2)
-        sys.exit()

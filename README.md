@@ -6,13 +6,8 @@ Cookies can then be injected using the [EditThisCookie](https://chrome.google.co
 
 Works on Windows, Linux and MacOS. 
 
-Tested on Ubuntu 18.04 and Windows 10 (1909) with Chrome version 79.0.3945.130 (64-bit).
-
-Made with:
-
-* [Python](https://www.python.org/ "Python's Homepage") (3.6 or newer)
-
 Requirements:
+- [Python 3.7+](https://www.python.org/downloads/)
 - [requests](https://pypi.org/project/requests/)
 - [websocket-client](https://pypi.org/project/websocket_client/)
 
@@ -20,11 +15,8 @@ Usage:
 
 `python cookie_extractor.py`
 
-To compile to a single binary (e.g. executable), get [pyinstaller](https://pypi.org/project/PyInstaller/) via `pip install PyInstaller` and run:
+To compile to a single binary (e.g. executable), install [pyinstaller](https://pypi.org/project/PyInstaller/) via `pip install pyinstaller` and run:
 
-`pyinstaller -F cookie_extractor.py`
+`pyinstaller --onefile cookie_extractor.py`
 
-Note that this will make the binary tied to the OS you create it on (i.e. running on Windows will create an .exe that can't run on Linux, and vice-versa).
-
-##### Disclaimer:
-Don't use this for unethical stuff!
+Note that this will make the binary tied to the OS you create it on (e.g. running on Windows will create an .exe that can't run on Linux, and vice-versa).
