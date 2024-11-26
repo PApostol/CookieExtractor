@@ -2,7 +2,7 @@
 
 Extracts all Chrome cookies found on host in a JSON file.
 
-Cookies can then be injected using the [EditThisCookie](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg?hl=en) Chrome extension.
+Cookies can then be injected using the [EditThisCookie](https://chromewebstore.google.com/detail/editthiscookies/hlgpnddmgbhkmilmcnejaibhmoiljhhb) Chrome extension.
 
 Works on Windows, Linux and MacOS. 
 
